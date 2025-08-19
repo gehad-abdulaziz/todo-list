@@ -12,11 +12,12 @@ The design follows the Figma prototype exactly:
 
 ### Features
 
+
 1. **Hero Section**(right section)
    - A welcoming headline and a short description about the app.
    - Includes a "Get Started" button that directs users to sign up.
    - Link for users who already have an account.
-2. **Visual Illustration**(left section)
+3. **Visual Illustration**(left section)
    - An image displayed on the left side to represent the app visually.
-3. **Responsive Design**
+4. **Responsive Design**
    - Works perfectly on desktop, tablet, and mobile screens
