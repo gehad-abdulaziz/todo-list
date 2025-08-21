@@ -1,5 +1,6 @@
 import React from "react";
 import VisualIllustration from "../components/VisualIllustration.jsx";
+
 import RightVisualIllustration from "../components/RightVisualllustration.jsx";
 import { useNavigate } from "react-router-dom";
 
