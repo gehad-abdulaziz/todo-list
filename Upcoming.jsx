@@ -119,7 +119,7 @@ function Upcoming() {
                 </div>
                 <button
                   type="submit"
-                  className="px-3 py-1 rounded bg-[var(--color-primary)] text-[var(--color-background)] mt-2"
+                  className="px-3 py-1 rounded bg-[var(--color-primary)] text-white mt-2"
                 >
                   Add
                 </button>
@@ -158,7 +158,7 @@ function Upcoming() {
                     </div>
                     <div className="flex items-center gap-2">
                       {task.start && task.end && (
-                        <p className="text-xs text-[var(--gray-600)]">
+                        <p className="text-xs text-gray-500">
                           {new Date(task.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} -{" "}
                           {new Date(task.end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
