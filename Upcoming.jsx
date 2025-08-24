@@ -2,14 +2,23 @@ import React from "react";
 import { useLoaderData, Form, redirect } from "react-router-dom";
 import LeftMenu from "../components/LeftMenu.jsx";
 
+const initialCards = [
+  { id: "today", title: "Today", tasks: [] },
+  { id: "tomorrow", title: "Tomorrow", tasks: [] },
+  { id: "week", title: "This Week", tasks: [] },
+];
+
 export async function loader() {
-  const initialCards = [
-    { id: "today", title: "Today", tasks: [] },
-    { id: "tomorrow", title: "Tomorrow", tasks: [] },
-    { id: "week", title: "This Week", tasks: [] },
-  ];
   const saved = localStorage.getItem("upcomingCards");
-  const cards = saved ? JSON.parse(saved) : initialCards;
+  let cards = saved ? JSON.parse(saved) : initialCards;
+
+  const ids = cards.map((c) => c.id);
+  initialCards.forEach((defaultCard) => {
+    if (!ids.includes(defaultCard.id)) {
+      cards.push(defaultCard);
+    }
+  });
+
   return { cards };
 }
 
@@ -19,7 +28,14 @@ export async function action({ request }) {
   const intent = data.intent;
 
   const saved = localStorage.getItem("upcomingCards");
-  let cards = JSON.parse(saved || "[]");
+  let cards = saved ? JSON.parse(saved) : initialCards;
+
+  const ids = cards.map((c) => c.id);
+  initialCards.forEach((defaultCard) => {
+    if (!ids.includes(defaultCard.id)) {
+      cards.push(defaultCard);
+    }
+  });
 
   if (intent === "addTask") {
     const { cardId, text, startDate, startTime, endDate, endTime } = data;
@@ -75,13 +91,13 @@ function Upcoming() {
   const totalTasks = cards.reduce((sum, c) => sum + c.tasks.length, 0);
 
   return (
-    <div className="flex min-h-screen justify-start items-start gap-4 bg-[var(--color-bg)] text-[var(--color-text)]">
+    <div className="flex min-h-screen justify-start items-start gap-4 bg-(--color-bg) text-(--color-text)">
       <LeftMenu todayCount={todayTasks} upcomingCount={upcomingTasks} />
 
       <div className="flex-1 mx-4 mt-4 min-h-168 rounded-3xl p-8 text-center flex flex-col gap-6 lg:ml-72 lg:mr-4 lg:h-auto lg:p-10 max-w-6xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Upcoming</h1>
-          <div className="rounded-full px-3 py-1 text-sm font-medium bg-[var(--color-badge-bg)]">
+          <div className="rounded-full px-3 py-1 text-sm font-medium bg-(--color-badge-bg)">
             {totalTasks}
           </div>
         </div>
@@ -90,7 +106,7 @@ function Upcoming() {
           {cards.map((card) => (
             <div
               key={card.id}
-              className={`rounded-2xl border p-4 shadow-sm bg-[var(--color-card-bg)] border-[var(--color-border)] ${
+              className={`rounded-2xl border p-4 shadow-sm bg-(--color-card-bg) border-(--color-border) ${
                 card.id === "today" ? "md:col-span-2" : ""
               }`}
             >
@@ -103,7 +119,7 @@ function Upcoming() {
                   type="text"
                   name="text"
                   placeholder="Add new task"
-                  className="border rounded px-2 py-1 w-full focus:outline-none focus:ring-2 border-[var(--color-border)] focus:ring-[var(--color-primary-light)]"
+                  className="border rounded px-2 py-1 w-full focus:outline-none focus:ring-2 border-(--color-border) focus:ring-(--color-primary-light)"
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -119,7 +135,7 @@ function Upcoming() {
                 </div>
                 <button
                   type="submit"
-                  className="px-3 py-1 rounded bg-[var(--color-primary)] text-white mt-2"
+                  className="px-3 py-1 rounded bg-(--color-primary) text-white mt-2"
                 >
                   Add
                 </button>
@@ -152,7 +168,7 @@ function Upcoming() {
                           window.location.reload();
                         }}
                       />
-                      <span className={task.done ? "line-through text-[var(--color-muted-text)]" : ""}>
+                      <span className={task.done ? "line-through text-(--color-muted-text)" : ""}>
                         {task.text}
                       </span>
                     </div>
@@ -169,7 +185,7 @@ function Upcoming() {
                         <input type="hidden" name="taskId" value={task.id} />
                         <button
                           type="submit"
-                          className="text-[var(--color-danger)] text-sm hover:underline"
+                          className="text-(--color-danger) text-sm hover:underline"
                         >
                           Delete
                         </button>
