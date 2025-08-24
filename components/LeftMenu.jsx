@@ -4,12 +4,13 @@ import {
   HiOutlineCalendar,
   HiOutlineClipboardList,
   HiChevronRight,
-  HiCog,
   HiLogout,
   HiMenu,
   HiX,
   HiOutlineClipboard
 } from "react-icons/hi";
+import { AiOutlineAlignCenter } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 
 const initialLists = [
   { name: "Work", color: "var(--list-work)" },
@@ -26,64 +27,16 @@ const initialTasks = [
   { name: "Buy groceries", dueDate: new Date(new Date().setDate(new Date().getDate() + 1)) },
 ];
 
-// ---------------- Calendar ----------------
-const SimpleCalendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const today = new Date();
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const blanks = Array(firstDayOfMonth).fill(null);
-  const daysArr = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const isToday = (day) =>
-    day === today.getDate() &&
-    month === today.getMonth() &&
-    year === today.getFullYear();
-
-  return (
-    <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-lg w-full max-w-xs">
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
-          className="p-2 rounded-full hover:bg-[var(--hover-bg)]"
-        >
-          &lt;
-        </button>
-        <span className="font-bold text-lg text-[var(--text-color)]">
-          {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
-        </span>
-        <button
-          onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
-          className="p-2 rounded-full hover:bg-[var(--hover-bg)]"
-        >
-          &gt;
-        </button>
-      </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-sm">
-        {daysOfWeek.map((day) => (
-          <div key={day} className="font-semibold text-[var(--text-muted)]">{day}</div>
-        ))}
-        {blanks.map((_, i) => <div key={`blank-${i}`}></div>)}
-        {daysArr.map((day) => (
-          <div
-            key={day}
-            className={`p-2 rounded-full cursor-pointer hover:bg-[var(--hover-bg)] ${
-              isToday(day)
-                ? "bg-[var(--accent-blue)] text-white hover:bg-[var(--accent-blue-dark)]"
-                : "text-[var(--text-color)]"
-            }`}
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+const colorOptions = [
+  { label: "Red", value: "--list-work" },
+  { label: "Blue", value: "--list-personal" },
+  { label: "Green", value: "--list-study" },
+  { label: "Kewi Green", value: "--kewi-green" },
+  { label: "Blue Accent", value: "--accent-blue" },
+];
 
 const LeftMenu = ({ todayCount, upcomingCount }) => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [lists, setLists] = useState(() => {
     const saved = localStorage.getItem("lists");
@@ -92,9 +45,12 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
   const [tasks, setTasks] = useState(initialTasks);
   const [stickyNotes, setStickyNotes] = useState(["Remember to call mom!"]);
   const [showAllLists, setShowAllLists] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isStickyWallOpen, setIsStickyWallOpen] = useState(false);
   const [isAddListModalOpen, setIsAddListModalOpen] = useState(false);
+
+  // Dropdown states
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0].value);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("lists", JSON.stringify(lists));
@@ -103,10 +59,10 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
   const handleAddNewList = (event) => {
     event.preventDefault();
     const name = event.target.elements.listName.value;
-    const color = event.target.elements.listColor.value;
-    if (name && color) {
-      setLists([...lists, { name, color }]);
+    if (name && selectedColor) {
+      setLists([...lists, { name, color: `var(${selectedColor})` }]);
       setIsAddListModalOpen(false);
+      setSelectedColor(colorOptions[0].value);
     }
   };
 
@@ -119,99 +75,97 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
     }
   };
 
+const handleSignOut = () => {
+  localStorage.removeItem("currentUser"); 
+  navigate("/login");
+};
+
+
   const listsToDisplay = showAllLists ? lists : lists.slice(0, 2);
 
   return (
     <>
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-[var(--hover-bg)] rounded-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-(--hover-bg) rounded-lg"
         onClick={() => setOpen(true)}
       >
-        <HiMenu className="w-6 h-6 text-[var(--icon-color)]" />
+        <HiMenu className="w-6 h-6 text-(--icon-color)" />
       </button>
 
+      {/* Left Menu */}
       <div
-        className={`fixed top-0 left-0 w-72 max-h-screen bg-[var(--gray-bg)] rounded-xl py-3 px-3 my-2 mx-4 mt-4
+        className={`fixed top-0 left-0 w-72 max-h-screen bg-(--gray-bg) rounded-xl py-3 px-5 my-1 mx-4 mt-3
         transform transition-transform duration-300 z-40
         ${open ? "translate-x-0" : "-translate-x-100"} md:translate-x-0 
         overflow-y-auto shadow-lg`}
       >
         <button
-          className="md:hidden absolute top-4 right-4 p-2 bg-[var(--hover-bg)] rounded-lg"
+          className="md:hidden absolute top-4 right-4 p-2 bg-(--hover-bg) rounded-lg"
           onClick={() => setOpen(false)}
         >
-          <HiX className="w-6 h-6 text-[var(--icon-color)]" />
+          <HiX className="w-6 h-6 text-(--icon-color)" />
         </button>
 
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-[var(--text-color)]">Menu</h1>
+          <h1 className="text-3xl font-bold text-(--text-color)">Menu</h1>
         </div>
 
-        <div className="flex items-center bg-[var(--search-bg)] rounded-full px-4 py-2">
-          <HiSearch className="w-5 h-5 text-[var(--icon-color)]" />
+        {/* Search */}
+        <div className="flex items-center bg-(--search-bg) rounded-full px-4 py-2">
+          <HiSearch className="w-5 h-5 text-(--icon-color)" />
           <input
             type="text"
             placeholder="Search..."
-            className="ml-2 bg-transparent outline-none flex-1 text-[var(--text-color)] placeholder-[var(--text-muted)]"
+            className="ml-2 bg-transparent outline-none flex-1 text-(--text-color) placeholder-(--text-muted)"
           />
         </div>
 
+        {/* Tasks */}
         <div className="mt-8">
-          <h2 className="text-lg font-bold mb-3 text-[var(--text-color)]">Tasks</h2>
+          <h2 className="text-lg font-bold mb-3 text-(--text-color)">Tasks</h2>
           <ul className="space-y-4">
-            <li className="flex justify-between items-center cursor-pointer">
+            <li onClick={() => navigate("/upcoming")} className="flex justify-between items-center cursor-pointer">
               <div className="flex items-center gap-3">
-                <HiChevronRight className="w-5 h-5 text-[var(--icon-color)]" />
+                <HiChevronRight className="w-5 h-5 text-(--icon-color)" />
                 <span>Upcoming</span>
               </div>
-              <span className="bg-[var(--chip-bg)] text-[var(--chip-text)] px-3 py-1 rounded-full text-sm">
+              <span className="bg-(--chip-bg) text-(--chip-text) px-3 py-1 rounded-full text-sm">
                 {upcomingCount > 15 ? "15+" : upcomingCount}
               </span>
             </li>
-            <li className="flex justify-between items-center cursor-pointer">
+            <li onClick={() => navigate("/today")} className="flex justify-between items-center cursor-pointer">
               <div className="flex items-center gap-3">
-                <HiOutlineClipboardList className="w-5 h-5 text-[var(--icon-color)]" />
+                <HiOutlineClipboardList className="w-5 h-5 text-(--icon-color)" />
                 <span>Today</span>
               </div>
-              <span className="bg-[var(--chip-bg)] text-[var(--chip-text)] px-3 py-1 rounded-full text-sm">
+              <span className="bg-(--chip-bg) text-(--chip-text) px-3 py-1 rounded-full text-sm">
                 {todayCount}
               </span>
             </li>
-            <li
-              onClick={() => setIsCalendarOpen(true)}
-              className="flex items-center gap-3 cursor-pointer"
-            >
-              <HiOutlineCalendar className="w-5 h-5 text-[var(--icon-color)]" />
+            <li onClick={() => navigate("/calendar")} className="flex items-center gap-3 cursor-pointer">
+              <HiOutlineCalendar className="w-5 h-5 text-(--icon-color)" />
               <span>Calendar</span>
             </li>
-            <li
-              onClick={() => setIsStickyWallOpen(true)}
-              className="flex items-center gap-3 cursor-pointer"
-            >
-              <HiOutlineClipboard className="w-5 h-5 text-[var(--icon-color)]" />
+            <li onClick={() => setIsStickyWallOpen(true)} className="flex items-center gap-3 cursor-pointer">
+              <HiOutlineClipboard className="w-5 h-5 text-(--icon-color)" />
               <span>Sticky Wall</span>
             </li>
           </ul>
         </div>
 
+        {/* Lists */}
         <div className="mt-8">
-          <h2 className="text-lg font-bold mb-3 text-[var(--text-color)]">Lists</h2>
+          <h2 className="text-lg font-bold mb-3 text-(--text-color)">Lists</h2>
           <ul className="space-y-3">
             {listsToDisplay.map((list, index) => (
-              <li
-                key={list.name}
-                className="flex items-center justify-between gap-3 bg-[var(--list-bg)] rounded-full px-3 py-2"
-              >
+              <li key={list.name} className="flex items-center justify-between gap-3 rounded-full px-3 py-2 hover:bg-(--hover-bg)">
                 <div className="flex items-center gap-3">
-                  <span
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: list.color }}
-                  ></span>
-                  <span>{list.name}</span>
+                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: list.color }}></span>
+                  <span style={{ color: list.color }}>{list.name}</span>
                 </div>
                 <button
                   onClick={() => setLists(lists.filter((_, i) => i !== index))}
-                  className="text-[var(--color-danger)] hover:text-[var(--red-600)] text-sm font-bold"
+                  className="text-(--color-danger) hover:text-(--red-600) text-sm font-bold"
                 >
                   ✕
                 </button>
@@ -220,7 +174,7 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
             {!showAllLists && lists.length > 2 && (
               <li
                 onClick={() => setShowAllLists(true)}
-                className="flex justify-center items-center gap-3 cursor-pointer text-[var(--accent-blue)] font-semibold py-2"
+                className="flex justify-center items-center gap-3 cursor-pointer text-(--accent-blue) font-semibold py-2"
               >
                 <span>See all lists</span>
               </li>
@@ -229,7 +183,7 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
               onClick={() => setIsAddListModalOpen(true)}
               className="flex items-center gap-3 cursor-pointer"
             >
-              <span className="w-5 h-5 border-2 border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--icon-color)]">
+              <span className="w-5 h-5 border-2 border-(--border-color) rounded-full flex items-center justify-center text-(--icon-color)">
                 +
               </span>
               <span>Add new list</span>
@@ -237,44 +191,33 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
           </ul>
         </div>
 
-        <div className="mt-10 mb-4 space-y-4 text-[var(--text-color)]">
+        {/* Settings & Sign Out */}
+        <div className="mt-10 mb-4 space-y-4 text-(--text-color)">
           <div className="flex items-center gap-3 cursor-pointer">
-            <HiCog className="w-5 h-5 text-[var(--icon-color)]" />
+            <AiOutlineAlignCenter className="w-5 h-5 text-(--icon-color)" />
             <span>Settings</span>
           </div>
-          <div className="flex items-center gap-3 cursor-pointer">
-            <HiLogout className="w-5 h-5 text-[var(--icon-color)]" />
+          <div className="flex items-center gap-3 cursor-pointer" onClick={handleSignOut}>
+            <HiLogout className="w-5 h-5 text-(--icon-color)" />
             <span>Sign Out</span>
           </div>
         </div>
       </div>
 
-      {isCalendarOpen && (
-        <div
-          className="fixed inset-0 bg-black/10 z-50 flex justify-center items-center"
-          onClick={() => setIsCalendarOpen(false)}
-        >
-          <div className="bg-[var(--color-card-bg)] p-4 rounded-xl shadow-lg"onClick={(e) => e.stopPropagation()}>
-            <SimpleCalendar />
-          </div>
-        </div>
-      )}
-
+      {/* Sticky Wall */}
       {isStickyWallOpen && (
         <div
           className="fixed inset-0 bg-black/10 z-50 flex justify-center items-center"
           onClick={() => setIsStickyWallOpen(false)}
         >
           <div
-            className="bg-[var(--sticky-bg)] p-6 rounded-lg w-full max-w-md shadow-xl"
+            className="bg-(--sticky-bg) p-6 rounded-lg w-full max-w-md shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl font-bold mb-4 text-[var(--text-color)]">Sticky Wall</h2>
+            <h2 className="text-2xl font-bold mb-4 text-(--text-color)">Sticky Wall</h2>
             <div className="space-y-2 h-64 overflow-y-auto mb-4">
               {stickyNotes.map((note, index) => (
-                <div key={index} className="bg-[var(--sticky-note)] p-3 rounded">
-                  {note}
-                </div>
+                <div key={index} className="bg-(--sticky-note) p-3 rounded">{note}</div>
               ))}
             </div>
             <form onSubmit={handleAddStickyNote}>
@@ -282,11 +225,11 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
                 name="noteText"
                 type="text"
                 placeholder="Add a new note..."
-                className="w-full p-2 rounded border border-[var(--border-color)]"
+                className="w-full p-2 rounded border border-(--border-color)"
               />
               <button
                 type="submit"
-                className="w-full mt-2 bg-[var(--accent-yellow)] text-[var(--accent-yellow-text)] font-bold py-2 rounded hover:bg-[var(--accent-yellow-dark)] transition-colors"
+                className="w-full mt-2 bg-(--accent-yellow) text-(--accent-yellow-text) font-bold py-2 rounded hover:bg-(--accent-yellow-dark) transition-colors"
               >
                 Add Note
               </button>
@@ -295,29 +238,53 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
         </div>
       )}
 
+      {/* Add List Modal */}
       {isAddListModalOpen && (
         <div
           className="fixed inset-0 bg-black/10 z-50 flex justify-center items-center"
           onClick={() => setIsAddListModalOpen(false)}
         >
-          <div className="bg-white p-6 rounded-lg w-full max-w-sm shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4 text-[var(--text-color)]">Add New List</h2>
+          <div
+            className="bg-(--color-background) p-6 rounded-lg w-full max-w-sm shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold mb-4 text-(--text-color)">Add New List</h2>
             <form onSubmit={handleAddNewList}>
               <div className="mb-4">
-                <label htmlFor="listName" className="block text-[var(--text-muted)] mb-1">List Name</label>
-                <input id="listName" name="listName" type="text" className="w-full p-2 border border-[var(--border-color)] rounded" required />
+                <label htmlFor="listName" className="block text-(--text-muted) mb-1">List Name</label>
+                <input id="listName" name="listName" type="text" className="w-full p-2 border border-(--border-color) rounded" required />
               </div>
-              <div className="mb-6">
-                <label htmlFor="listColor" className="block text-[var(--text-muted)] mb-1">List Color</label>
-                <select id="listColor" name="listColor" className="w-full p-2 border border-[var(--border-color)] rounded">
-                  <option value="var(--list-work)">Red</option>
-                  <option value="var(--list-personal)">Blue</option>
-                  <option value="var(--list-study)">Green</option>
-                  <option value="var(--kewi-green)">Kewi Green</option>
-                  <option value="var(--accent-blue)">Blue Accent</option>
-                </select>
+
+              {/* Custom Dropdown */}
+              <div className="mb-6 relative">
+                <label className="block text-(--text-muted) mb-1">List Color</label>
+                <div
+                  className="w-full p-2 border border-(--border-color) rounded cursor-pointer"
+                  style={{ color: `var(${selectedColor})` }}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  {colorOptions.find(c => c.value === selectedColor)?.label}
+                </div>
+                {isDropdownOpen && (
+                  <div className="absolute w-full mt-1 bg-(--color-background) border border-(--border-color) rounded shadow-lg z-10">
+                    {colorOptions.map((color) => (
+                      <div
+                        key={color.value}
+                        className="p-2 cursor-pointer hover:bg-(--hover-bg)"
+                        style={{ color: `var(${color.value})` }}
+                        onClick={() => {
+                          setSelectedColor(color.value);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        {color.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <button type="submit" className="w-full bg-[var(--accent-blue)] font-bold py-2 rounded hover:bg-[var(--accent-blue-dark)] transition-colors">Add List</button>
+
+              <button type="submit" className="w-full bg-(--accent-blue) font-bold py-2 rounded hover:bg-(--accent-blue-dark) transition-colors">Add List</button>
             </form>
           </div>
         </div>
