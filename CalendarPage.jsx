@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import LeftMenu from "../components/LeftMenu.jsx";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 
@@ -21,7 +21,6 @@ function CalendarPage() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState("Month");
     const [allEvents, setAllEvents] = useState([]);
-    const today = new Date();
     const [cards, setCards] = useState([]);
 
     useEffect(() => {
@@ -57,38 +56,39 @@ function CalendarPage() {
 
     const handleToday = () => setCurrentDate(new Date());
 
-    const headerTitle = useMemo(() => {
-        if (view === 'Day') return currentDate.toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        if (view === 'Week') {
-            const start = getStartOfWeek(currentDate);
-            const end = addDays(start, 6);
-            return `${start.getDate()} ${getMonthName(start)} - ${end.getDate()} ${getMonthName(end)}, ${end.getFullYear()}`;
-        }
-        if (view === 'Month') return `${getMonthName(currentDate)} ${currentDate.getFullYear()}`;
-    }, [currentDate, view]);
+    let headerTitle = '';
+    if (view === 'Day') {
+        headerTitle = currentDate.toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    } else if (view === 'Week') {
+        const start = getStartOfWeek(currentDate);
+        const end = addDays(start, 6);
+        headerTitle = `${start.getDate()} ${getMonthName(start)} - ${end.getDate()} ${getMonthName(end)}, ${end.getFullYear()}`;
+    } else if (view === 'Month') {
+        headerTitle = `${getMonthName(currentDate)} ${currentDate.getFullYear()}`;
+    }
 
     return (
-        <div className="flex min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+        <div className="flex min-h-screen bg-(--color-bg) text-(--color-text)">
             <LeftMenu todayCount={todayTasks} upcomingCount={upcomingTasks} />
-            <div className="w-full md:w-3/4 lg:w-[var(--calendar-width-lg)] h-auto max-h-[var(--calendar-max-height)] flex flex-col p-4 lg:ml-74">
-                <header className="flex items-center justify-between p-4 bg-[var(--color-card-bg)] rounded-t-lg border-b border-[var(--color-border)]">
+            <div className="w-full md:w-3/4 lg:w-(--calendar-width-lg) h-auto max-h-(--calendar-max-height) flex flex-col p-4 lg:ml-74">
+                <header className="flex items-center justify-between p-4 bg-(--color-card-bg) rounded-t-lg border-b border-(--color-border)">
                     <div className="flex items-center gap-4">
                         <button onClick={handleToday} className="border rounded px-3 py-1">Today</button>
                         <HiChevronLeft onClick={handlePrev} className="h-6 w-6 cursor-pointer" />
                         <HiChevronRight onClick={handleNext} className="h-6 w-6 cursor-pointer" />
                         <h2 className="text-xl font-semibold">{headerTitle}</h2>
                     </div>
-                    <div className="flex bg-[var(--btn-bg)] rounded-md p-1">
+                    <div className="flex bg-(--btn-bg) rounded-md p-1">
                         {["Day", "Week", "Month"].map(v => (
                             <button key={v} onClick={() => setView(v)}
-                                className={`px-3 py-1 text-sm rounded ${view === v ? "bg-[var(--btn-active-bg)] shadow" : ""}`}>
+                                className={`px-3 py-1 text-sm rounded ${view === v ? "bg-(--btn-active-bg) shadow" : ""}`}>
                                 {v}
                             </button>
                         ))}
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-auto bg-[var(--color-card-bg)] rounded-b-lg">
+                <div className="flex-1 overflow-auto bg-(--color-card-bg) rounded-b-lg">
                     {view === 'Day' && <DayView date={currentDate} events={allEvents} />}
                     {view === 'Week' && <WeekView date={currentDate} events={allEvents} />}
                     {view === 'Month' && <MonthView date={currentDate} events={allEvents} />}
@@ -101,16 +101,21 @@ function CalendarPage() {
 // --- Views Components ---
 const DayView = ({ date, events }) => {
     const hours = Array.from({ length: 24 }, (_, i) => i);
-    const dayEvents = events.filter(e => e.start.toDateString() === date.toDateString());
+
+    const dayEvents = events.filter(e => {
+        const startOfDay = new Date(date); startOfDay.setHours(0,0,0,0);
+        const endOfDay = new Date(date); endOfDay.setHours(23,59,59,999);
+        return e.start <= endOfDay && e.end >= startOfDay;
+    });
 
     return (
         <div className="relative" style={{ height: 'var(--week-height)' }}>
             {hours.map(hour => (
                 <div key={hour} className="flex border-t" style={{ height: 'var(--day-hour-height)' }}>
-                    <div className="w-[var(--day-time-width)] text-xs text-right pr-2 pt-1 text-[var(--time-text)]">
+                    <div className="w-(--day-time-width) text-xs text-right pr-2 pt-1 text-(--time-text)">
                         {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour-12} PM`}
                     </div>
-                    <div className="flex-1 border-l border-[var(--color-border)]"></div>
+                    <div className="flex-1 border-l border-(--color-border)"></div>
                 </div>
             ))}
             {dayEvents.map(event => {
@@ -118,7 +123,7 @@ const DayView = ({ date, events }) => {
                 const height = (event.end - event.start) / (1000 * 60);
                 return (
                     <div key={event.id} style={{ top: `${top}px`, height: `${height}px` }}
-                        className="absolute left-[var(--day-time-width)] right-2 bg-[var(--list-personal)] border border-[var(--day-border-color)] p-1 rounded z-10">
+                        className="absolute left-(--day-time-width) right-2 bg-(--list-personal) border border-(--day-border-color) p-1 rounded z-10">
                         <p className="text-xs font-semibold">{event.text}</p>
                     </div>
                 )
@@ -136,7 +141,7 @@ const WeekView = ({ date, events }) => {
             {days.map(day => (
                 <div key={day} className="flex flex-col items-center border-l py-2">
                     <p className="text-sm">{day.toLocaleDateString('default', { weekday: 'short' })}</p>
-                    <p className={`text-lg font-bold ${day.toDateString() === new Date().toDateString() ? 'bg-[var(--current-day-bg)] text-[var(--color-background)] rounded-full h-8 w-8 flex items-center justify-center' : ''}`}>
+                    <p className={`text-lg font-bold ${day.toDateString() === new Date().toDateString() ? 'bg-(--current-day-bg) text-(--color-background) rounded-full h-8 w-8 flex items-center justify-center' : ''}`}>
                         {day.getDate()}
                     </p>
                 </div>
@@ -144,12 +149,16 @@ const WeekView = ({ date, events }) => {
             <div className="col-span-7 grid grid-cols-7 relative" style={{ height: 'var(--week-height)' }}>
                 {days.map((day, dayIndex) => (
                     <div key={dayIndex} className="border-l">
-                         {events.filter(e => e.start.toDateString() === day.toDateString()).map(event => {
+                         {events.filter(e => {
+                            const startOfDay = new Date(day); startOfDay.setHours(0,0,0,0);
+                            const endOfDay = new Date(day); endOfDay.setHours(23,59,59,999);
+                            return e.start <= endOfDay && e.end >= startOfDay;
+                         }).map(event => {
                             const top = event.start.getHours() * 60 + event.start.getMinutes();
                             const height = (event.end - event.start) / (1000 * 60);
                             return (
                                  <div key={event.id} style={{ top: `${top}px`, height: `${height}px`, left: `${dayIndex * (100/7)}%`, width: `${100/7}%` }}
-                                    className="absolute bg-[var(--week-event-bg)] border border-[var(--week-event-border)] p-1 rounded z-10 text-xs overflow-hidden">
+                                    className="absolute bg-(--week-event-bg) border border-(--week-event-border) p-1 rounded z-10 text-xs overflow-hidden">
                                      {event.text}
                                  </div>
                             )
@@ -177,17 +186,21 @@ const MonthView = ({ date, events }) => {
             {blanks.map((_, i) => <div key={`b-${i}`} className="border-b border-r"></div>)}
             {daysArr.map(day => {
                 const currentDate = new Date(year, month, day);
-                const dayEvents = events.filter(e => e.start.toDateString() === currentDate.toDateString());
+                const dayEvents = events.filter(e => {
+                    const startOfDay = new Date(currentDate); startOfDay.setHours(0,0,0,0);
+                    const endOfDay = new Date(currentDate); endOfDay.setHours(23,59,59,999);
+                    return e.start <= endOfDay && e.end >= startOfDay;
+                });
                 return (
                     <div key={day} className="border-b border-r p-1" style={{ minHeight: 'var(--month-day-min-height)' }}>
-                        <p className={`text-sm ${currentDate.toDateString() === new Date().toDateString() ? 'font-bold text-[var(--current-day-text)]' : ''}`}>{day}</p>
+                        <p className={`text-sm ${currentDate.toDateString() === new Date().toDateString() ? 'font-bold text-(--current-day-text)' : ''}`}>{day}</p>
                         <div className="flex flex-col gap-1 mt-1">
                             {dayEvents.slice(0, 2).map(event => (
-                                <div key={event.id} className="text-xs bg-[var(--month-event-bg)] rounded px-1 truncate">
+                                <div key={event.id} className="text-xs bg-(--month-event-bg) rounded px-1 truncate">
                                     {event.text}
                                 </div>
                             ))}
-                            {dayEvents.length > 2 && <div className="text-xs text-[var(--gray-600)]">+{dayEvents.length - 2} more</div>}
+                            {dayEvents.length > 2 && <div className="text-xs text-(--gray-600)">+{dayEvents.length - 2} more</div>}
                         </div>
                     </div>
                 );
