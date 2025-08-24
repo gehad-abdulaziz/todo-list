@@ -6,6 +6,11 @@ import {
 } from "react-router-dom";
 import App from './App.jsx';
 
+import Today, {
+  loader as todayLoader,
+  action as todayAction,
+} from './pages/Today.jsx';
+
 import Upcoming, {
   loader as upcomingLoader,
   action as upcomingAction,
@@ -24,36 +29,14 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />, 
     children: [ 
-      {
-        index: true,
-        element: <Landing />,
-      },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "register",
-        element: <Register />,
-      },
-      {
-        path: "home",
-        element: <Home />,
-      },
-      {
-        path: "upcoming",
-        element: <Upcoming />,
-        loader: upcomingLoader,
-        action: upcomingAction, 
-      },
-      {
-        path: "calendar",
-        element: <CalendarPage />,
-      },
-      {
-        path: "cover",
-        element: <Cover />,
-      },
+      { index: true, element: <Landing /> },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
+      { path: "home", element: <Home /> },
+      { path: "upcoming", element: <Upcoming />, loader: upcomingLoader, action: upcomingAction },
+      { path: "today", element: <Today />, loader: todayLoader, action: todayAction }, 
+      { path: "calendar", element: <CalendarPage /> },
+      { path: "cover", element: <Cover /> },
     ],
   },
 ]);

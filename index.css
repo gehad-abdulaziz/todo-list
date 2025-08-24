@@ -4,6 +4,7 @@
   --light-bg: #FFF9F9; 
   --gray-bg: #e2e2e2;
   --kewi-green: #76DE37;
+  --accent-blue: #3b82f6;
   --blue:#0e2eff;
   --color-primary: #2196f3;
   --color-secondary: #1976d2;
@@ -45,6 +46,10 @@
   --btn-blue-bg: #2563eb;
   --btn-blue-hover: #1d4ed8;
   --btn-blue-text: #ffffff;
+    --color-error-text: #b91c1c;      
+  --color-error-bg: #fee2e2;       
+  --color-success-text: #047857;    
+  --color-success-bg: #d1fae5;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -85,7 +90,31 @@
   --color-primary-light: #93c5fd;
   --color-danger: #ef4444;  
   --color-badge-bg: #e5e7eb;
+  --list-personal: #4dabf7;      
+  --list-work: #ff6b6b;          
+  --list-study: #51cf66;
+  
+  --color-bg: #f9fafb;           
+  --color-card-bg: #ffffff;      
+  --color-border: #d1d5db;        
+  --color-text: #111827;         
+  --color-muted-text: #6b7280;    
+  --btn-bg: #f3f3f3;             
+  --btn-active-bg: #ffffff;      
+  
+  --day-border-color: #93c5fd;      
+  --week-event-bg: #ff6b6b;         
+  --week-event-border: #22c55e;     
+  --month-event-bg: #51cf66;        
+  --current-day-text: #2563eb;      
+  --current-day-bg: #3b82f6;        
+  --time-text: #6b7280;             
 
-
+  --calendar-width-lg: 1200px;
+  --calendar-max-height: 700px;
+  --day-hour-height: 60px;
+  --month-day-min-height: 120px;
+  --week-height: 1440px; 
+  --day-time-width: 16rem;
 }
 
