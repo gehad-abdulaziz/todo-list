@@ -45,17 +45,28 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-6 p-4 bg-[var(--gray-bg)]">
+    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-6 p-4 bg-(--gray-bg)">
       <VisualIllustration imgSrc="/images/Rectangle1.png" altText="App Preview" />
 
       <RightVisualIllustration>
         <div className="flex flex-col justify-center items-start h-full w-full max-w-sm mx-auto">
-          <h2 className="text-4xl font-bold text-left mb-4" style={{ fontFamily: '"Oswald", sans-serif' }}>
+          <h2
+            className="text-4xl font-bold text-left mb-4"
+            style={{ fontFamily: '"Oswald", sans-serif' }}
+          >
             Sign Up
           </h2>
 
-          {error && <p className="w-full mb-2 p-2 text-var[(--color-error-text)] bg-var[(--color-error-bg)] rounded">{error}</p>}
-          {success && <p className="w-full mb-2 p-2 text-var[(--color-success-text)] bg-var[(--color-success-bg)] rounded">{success}</p>}
+          {error && (
+            <p className="w-full mb-2 p-2 text-(--color-error-text) bg-(--color-error-bg) rounded">
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className="w-full mb-2 p-2 text-(--color-success-text) bg-(--color-success-bg) rounded">
+              {success}
+            </p>
+          )}
 
           <div className="flex flex-col items-start mt-6 w-full max-w-sm mx-auto">
             <input
@@ -63,21 +74,21 @@ function Register() {
               onChange={e => setFirstName(e.target.value)}
               type="text"
               placeholder="First Name"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-[var(--border-color)] focus:ring-[var(--kewi-green)]"
+              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
             />
             <input
               value={lastName}
               onChange={e => setLastName(e.target.value)}
               type="text"
               placeholder="Last Name"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-[var(--border-color)] focus:ring-[var(--kewi-green)]"
+              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
             />
             <input
               value={email}
               onChange={e => setEmail(e.target.value)}
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-[var(--border-color)] focus:ring-[var(--kewi-green)]"
+              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
             />
 
             <div className="relative w-full mb-3">
@@ -86,9 +97,12 @@ function Register() {
                 onChange={e => setPassword(e.target.value)}
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 border-[var(--border-color)] focus:ring-[var(--kewi-green)]"
+                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
               />
-              <span onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--icon-color)]">
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-(--icon-color)"
+              >
                 {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </span>
             </div>
@@ -99,19 +113,28 @@ function Register() {
                 onChange={e => setRePassword(e.target.value)}
                 type={showRePassword ? "text" : "password"}
                 placeholder="Re-Password"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 border-[var(--border-color)] focus:ring-[var(--kewi-green)]"
+                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
               />
-              <span onClick={() => setShowRePassword(!showRePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[var(--icon-color)]">
+              <span
+                onClick={() => setShowRePassword(!showRePassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-(--icon-color)"
+              >
                 {showRePassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </span>
             </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 w-full">
-            <button onClick={handleSignUp} className="px-4 py-2 rounded w-full bg-[var(--kewi-green)] text-[var(--btn-blue-text)] shadow-md">
+            <button
+              onClick={handleSignUp}
+              className="px-4 py-2 rounded w-full bg-(--kewi-green) text-(--btn-blue-text) shadow-md"
+            >
               Sign Up
             </button>
-            <button onClick={() => navigate("/login")} className="px-4 py-2 rounded w-full">
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 rounded w-full"
+            >
               Already have an account? Sign in
             </button>
           </div>
