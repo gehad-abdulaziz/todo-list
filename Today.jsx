@@ -38,6 +38,7 @@ function Today() {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [upcomingCount, setUpcomingCount] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem("upcomingCards");
@@ -45,6 +46,12 @@ function Today() {
       const cards = JSON.parse(saved);
       const today = cards.find((c) => c.id === "today");
       if (today) setTodayCard(today);
+
+      const upcomingTasksCount = cards
+        .filter((c) => c.id !== "today")
+        .reduce((sum, c) => sum + c.tasks.length, 0);
+
+      setUpcomingCount(upcomingTasksCount);
     }
   }, []);
 
@@ -76,45 +83,34 @@ function Today() {
     const updatedCard = { ...todayCard, tasks: [...todayCard.tasks, newTask] };
     setTodayCard(updatedCard);
     setNewTaskText("");
-    setStartDate(""); setStartTime(""); setEndDate(""); setEndTime("");
+    setStartDate("");
+    setStartTime("");
+    setEndDate("");
+    setEndTime("");
 
     const saved = localStorage.getItem("upcomingCards");
     let cards = saved ? JSON.parse(saved) : [];
-    if (!cards.find(c => c.id === "today")) cards.push({ id: "today", title: "Today", tasks: [] });
+    if (!cards.find((c) => c.id === "today"))
+      cards.push({ id: "today", title: "Today", tasks: [] });
     cards = cards.map((c) => (c.id === "today" ? updatedCard : c));
     localStorage.setItem("upcomingCards", JSON.stringify(cards));
   };
-useEffect(() => {
-  const saved = localStorage.getItem("upcomingCards");
-  if (saved) {
-    const cards = JSON.parse(saved);
-    const today = cards.find((c) => c.id === "today");
-    if (today) setTodayCard(today);
-
-    const upcomingTasksCount = cards
-      .filter((c) => c.id !== "today")
-      .reduce((sum, c) => sum + c.tasks.length, 0);
-
-    setUpcomingCount(upcomingTasksCount);
-  }
-}, []);
-const [upcomingCount, setUpcomingCount] = useState(0);
 
   const todayTasks = todayCard.tasks.length;
 
   return (
-    <div className="min-h-screen justify-start items-start gap-4 bg-[var(--color-bg)] text-[var(--color-text)]">
-<LeftMenu todayCount={todayTasks} upcomingCount={upcomingCount} />
+    <div className="min-h-screen justify-start items-start gap-4 text-(--color-text)">
+      <LeftMenu todayCount={todayTasks} upcomingCount={upcomingCount} />
 
       <div className="flex-1 mx-4 mt-4 min-h-168 rounded-3xl p-8 text-center flex flex-col gap-6 lg:ml-72 lg:mr-0 lg:h-auto lg:p-10 w-full max-w-[80%]">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Today</h1>
-          <div className="rounded-full px-4 py-2 text-sm font-medium bg-[var(--color-badge-bg)]">
+          <div className="rounded-full px-4 py-2 text-sm font-medium bg-(--color-badge-bg)">
             {todayTasks}
           </div>
         </div>
 
-        <div className="rounded-2xl border p-6 shadow-sm bg-[var(--color-card-bg)] border-[var(--color-border)]">
+        <div className="rounded-2xl border p-6 shadow-sm bg-(--color-card-bg) border-(--color-border)">
           <h2 className="font-bold text-2xl mb-4">{todayCard.title}</h2>
 
           <form onSubmit={handleAddTask} className="flex flex-col gap-2 mb-4">
@@ -123,23 +119,43 @@ const [upcomingCount, setUpcomingCount] = useState(0);
               placeholder="Add new task"
               value={newTaskText}
               onChange={(e) => setNewTaskText(e.target.value)}
-              className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 border-[var(--color-border)] focus:ring-[var(--color-primary-light)]"
+              className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 border-(--color-border) focus:ring-(--color-primary-light)"
             />
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-sm">Start Date & Time</label>
-                <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full p-2 border rounded mb-1" />
-                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="w-full p-2 border rounded" />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full p-2 border rounded mb-1"
+                />
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
               </div>
               <div>
                 <label className="text-sm">End Date & Time</label>
-                <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full p-2 border rounded mb-1" />
-                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="w-full p-2 border rounded" />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full p-2 border rounded mb-1"
+                />
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
               </div>
             </div>
             <button
               type="submit"
-              className="w-full text-center py-2 border rounded-lg mt-2 hover:bg-[var(--gray-100)] transition"
+              className="w-full text-center py-2 border rounded-lg mt-2 hover:bg-(--gray-100) transition"
             >
               + Add new task
             </button>
@@ -148,12 +164,12 @@ const [upcomingCount, setUpcomingCount] = useState(0);
           {/* Tasks List */}
           <div className="flex flex-col gap-3">
             {todayCard.tasks.length === 0 && (
-              <p className="text-sm text-bg-[var(--gray-500)] italic">No tasks yet</p>
+              <p className="text-sm text-(--gray-500) italic">No tasks yet</p>
             )}
             {todayCard.tasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center justify-between border-b pb-2 border-[var(--color-border)]"
+                className="flex items-center justify-between border-b pb-2 border-(--color-border)"
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -161,14 +177,27 @@ const [upcomingCount, setUpcomingCount] = useState(0);
                     checked={task.done}
                     onChange={() => toggleTask(task.id)}
                   />
-                  <span className={task.done ? "line-through text-[var(--color-muted-text)]" : "font-medium"}>
+                  <span
+                    className={
+                      task.done
+                        ? "line-through text-(--color-muted-text)"
+                        : "font-medium"
+                    }
+                  >
                     {task.text}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-xs text-bg-[var(--gray-500)]">
-                    {new Date(task.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} -{" "}
-                    {new Date(task.end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  <p className="text-xs text-(--gray-500)">
+                    {new Date(task.start).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                    -{" "}
+                    {new Date(task.end).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                   <button
                     onClick={() => {
@@ -179,10 +208,15 @@ const [upcomingCount, setUpcomingCount] = useState(0);
                       setTodayCard(updatedCard);
                       const saved = localStorage.getItem("upcomingCards");
                       let cards = saved ? JSON.parse(saved) : [];
-                      cards = cards.map((c) => (c.id === "today" ? updatedCard : c));
-                      localStorage.setItem("upcomingCards", JSON.stringify(cards));
+                      cards = cards.map((c) =>
+                        c.id === "today" ? updatedCard : c
+                      );
+                      localStorage.setItem(
+                        "upcomingCards",
+                        JSON.stringify(cards)
+                      );
                     }}
-                    className="text-[var(--color-danger)] text-xs font-semibold hover:underline"
+                    className="text-(--color-danger) text-xs font-semibold hover:underline"
                   >
                     Delete
                   </button>
