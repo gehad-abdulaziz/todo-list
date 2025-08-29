@@ -118,3 +118,34 @@
   --day-time-width: 16rem;
 }
 
+
+.input-field {
+  @apply w-full px-4 py-2 mb-3 border rounded 
+         focus:outline-none focus:ring-2 
+         border-[var(--border-color)] focus:ring-[var(--kewi-green)];
+}
+
+.password-input {
+  @apply w-full px-4 py-2 border rounded 
+         focus:outline-none focus:ring-2 
+         border-[var(--border-color)] focus:ring-[var(--kewi-green)];
+}
+
+.primary-btn {
+  @apply px-4 py-2 rounded w-full 
+         bg-[var(--kewi-green)] text-white shadow-md;
+}
+
+.secondary-btn {
+  @apply px-4 py-2 rounded w-full;
+}
+
+.error-msg {
+  @apply w-full mb-2 p-2 text-[var(--color-error-text)] 
+         bg-[var(--color-error-bg)] rounded;
+}
+
+.success-msg {
+  @apply w-full mb-2 p-2 text-[var(--color-success-text)] 
+         bg-[var(--color-success-bg)] rounded;
+}
