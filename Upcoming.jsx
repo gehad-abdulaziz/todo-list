@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; 
 import { useLoaderData, Form, redirect } from "react-router-dom";
 import LeftMenu from "../components/LeftMenu.jsx";
 
@@ -8,7 +8,7 @@ const initialCards = [
   { id: "week", title: "This Week", tasks: [] },
 ];
 
-export async function loader() {
+export function loader() {
   const saved = localStorage.getItem("upcomingCards");
   let cards = saved ? JSON.parse(saved) : initialCards;
 
@@ -38,8 +38,8 @@ export async function action({ request }) {
   });
 
   if (intent === "addTask") {
-    const { cardId, text, startDate, startTime, endDate, endTime } = data;
-    if (!text.trim() || !startDate || !startTime || !endDate || !endTime) return null;
+    const { cardId, text, startDate, startTime, endDate, endTime, category } = data;
+    if (!text.trim() || !startDate || !startTime || !endDate || !endTime || !category) return null;
 
     const newTask = {
       id: Date.now(),
@@ -47,6 +47,7 @@ export async function action({ request }) {
       done: false,
       start: new Date(`${startDate}T${startTime}`).toISOString(),
       end: new Date(`${endDate}T${endTime}`).toISOString(),
+      category: JSON.parse(category),
     };
 
     cards = cards.map((c) =>
@@ -71,9 +72,7 @@ export async function action({ request }) {
   if (intent === "deleteTask") {
     const { cardId, taskId } = data;
     cards = cards.map((c) =>
-      c.id === cardId
-        ? { ...c, tasks: c.tasks.filter((t) => t.id.toString() !== taskId) }
-        : c
+      c.id === cardId ? { ...c, tasks: c.tasks.filter((t) => t.id.toString() !== taskId) } : c
     );
   }
 
@@ -83,21 +82,37 @@ export async function action({ request }) {
 
 function Upcoming() {
   const { cards } = useLoaderData();
+  const [lists, setLists] = useState([]);
+
+  useEffect(() => {
+    const savedLists = localStorage.getItem("lists");
+    if (savedLists) {
+      setLists(JSON.parse(savedLists));
+    }
+  }, []);
 
   const todayTasks = cards.find((c) => c.id === "today")?.tasks.length || 0;
-  const upcomingTasks = cards
-    .filter((c) => c.id !== "today")
-    .reduce((sum, c) => sum + c.tasks.length, 0);
+  const upcomingTasks = cards.filter((c) => c.id !== "today").reduce((sum, c) => sum + c.tasks.length, 0);
   const totalTasks = cards.reduce((sum, c) => sum + c.tasks.length, 0);
 
+  const toggleTask = (cardId, taskId) => {
+    const updatedCards = cards.map((c) =>
+      c.id === cardId
+        ? { ...c, tasks: c.tasks.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)) }
+        : c
+    );
+    localStorage.setItem("upcomingCards", JSON.stringify(updatedCards));
+    window.location.reload(); 
+  };
+
   return (
-    <div className="flex min-h-screen justify-start items-start gap-4 bg-(--color-bg) text-(--color-text)">
+    <div className="flex min-h-screen justify-start items-start gap-4 text-black">
       <LeftMenu todayCount={todayTasks} upcomingCount={upcomingTasks} />
 
       <div className="flex-1 mx-4 mt-4 min-h-168 rounded-3xl p-8 text-center flex flex-col gap-6 lg:ml-72 lg:mr-4 lg:h-auto lg:p-10 max-w-6xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Upcoming</h1>
-          <div className="rounded-full px-3 py-1 text-sm font-medium bg-(--color-badge-bg)">
+          <div className="rounded-full px-3 py-1 text-sm font-medium bg-gray-200">
             {totalTasks}
           </div>
         </div>
@@ -106,7 +121,7 @@ function Upcoming() {
           {cards.map((card) => (
             <div
               key={card.id}
-              className={`rounded-2xl border p-4 shadow-sm bg-(--color-card-bg) border-(--color-border) ${
+              className={`rounded-2xl border p-4 shadow-sm bg-white border-gray-300 ${
                 card.id === "today" ? "md:col-span-2" : ""
               }`}
             >
@@ -119,8 +134,17 @@ function Upcoming() {
                   type="text"
                   name="text"
                   placeholder="Add new task"
-                  className="border rounded px-2 py-1 w-full focus:outline-none focus:ring-2 border-(--color-border) focus:ring-(--color-primary-light)"
+                  className="border rounded px-2 py-1 w-full focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300"
                 />
+
+                <select name="category" className="w-full p-2 border rounded" defaultValue={lists.length > 0 ? JSON.stringify(lists[0]) : ""}>
+                  {lists.map((list) => (
+                    <option key={list.name} value={JSON.stringify(list)}>
+                      {list.name}
+                    </option>
+                  ))}
+                </select>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="text-sm">Start Date & Time</label>
@@ -133,44 +157,26 @@ function Upcoming() {
                     <input type="time" name="endTime" className="w-full p-2 border rounded" />
                   </div>
                 </div>
-                <button
-                  type="submit"
-                  className="px-3 py-1 rounded bg-(--color-primary) text-white mt-2"
-                >
-                  Add
-                </button>
+                <button type="submit" className="px-3 py-1 rounded bg-blue-500 text-white mt-2">Add</button>
               </Form>
 
-              {/* Tasks List */}
               <div className="flex flex-col gap-2">
                 {card.tasks.map((task) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between gap-2 border-b pb-1 border-[var(--color-border)]"
+                    className="flex items-center justify-between gap-2 border-b pb-1 border-gray-300 pl-2"
+                    style={{ borderLeft: task.category ? `4px solid ${task.category.color}` : "none" }}
                   >
                     <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={task.done}
-                        onChange={() => {
-                          const savedCards = JSON.parse(localStorage.getItem("upcomingCards") || "[]");
-                          const updated = savedCards.map((c) =>
-                            c.id === card.id
-                              ? {
-                                  ...c,
-                                  tasks: c.tasks.map((t) =>
-                                    t.id === task.id ? { ...t, done: !t.done } : t
-                                  ),
-                                }
-                              : c
-                          );
-                          localStorage.setItem("upcomingCards", JSON.stringify(updated));
-                          window.location.reload();
-                        }}
-                      />
-                      <span className={task.done ? "line-through text-(--color-muted-text)" : ""}>
-                        {task.text}
-                      </span>
+                      <label className="flex items-center gap-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={task.done}
+                          onChange={() => toggleTask(card.id, task.id)}
+                          className="w-4 h-4"
+                        />
+                        <span className={task.done ? "line-through text-gray-400" : ""}>{task.text}</span>
+                      </label>
                     </div>
                     <div className="flex items-center gap-2">
                       {task.start && task.end && (
@@ -183,12 +189,7 @@ function Upcoming() {
                         <input type="hidden" name="intent" value="deleteTask" />
                         <input type="hidden" name="cardId" value={card.id} />
                         <input type="hidden" name="taskId" value={task.id} />
-                        <button
-                          type="submit"
-                          className="text-(--color-danger) text-sm hover:underline"
-                        >
-                          Delete
-                        </button>
+                        <button type="submit" className="text-red-500 text-sm hover:underline">Delete</button>
                       </Form>
                     </div>
                   </div>
