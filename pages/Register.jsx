@@ -9,17 +9,27 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showRePassword, setShowRePassword] = useState(false);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rePassword, setRePassword] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    rePassword: "",
+  });
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSignUp = () => {
     setError("");
     setSuccess("");
+
+    const { firstName, lastName, email, password, rePassword } = formData;
 
     if (!firstName || !lastName || !email || !password || !rePassword) {
       setError("Please fill in all fields!");
@@ -32,7 +42,7 @@ function Register() {
     }
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
-    if (users.some(u => u.email === email)) {
+    if (users.some((u) => u.email === email)) {
       setError("Email already registered!");
       return;
     }
@@ -41,7 +51,7 @@ function Register() {
     localStorage.setItem("users", JSON.stringify(users));
 
     setSuccess("Registered successfully!");
-    setTimeout(() => navigate("/login"), 1500); 
+    setTimeout(() => navigate("/login"), 1500);
   };
 
   return (
@@ -57,47 +67,43 @@ function Register() {
             Sign Up
           </h2>
 
-          {error && (
-            <p className="w-full mb-2 p-2 text-(--color-error-text) bg-(--color-error-bg) rounded">
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="w-full mb-2 p-2 text-(--color-success-text) bg-(--color-success-bg) rounded">
-              {success}
-            </p>
-          )}
+          {error && <p className="error-msg">{error}</p>}
+          {success && <p className="success-msg">{success}</p>}
 
           <div className="flex flex-col items-start mt-6 w-full max-w-sm mx-auto">
             <input
-              value={firstName}
-              onChange={e => setFirstName(e.target.value)}
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
               type="text"
               placeholder="First Name"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+              className="input-field"
             />
             <input
-              value={lastName}
-              onChange={e => setLastName(e.target.value)}
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
               type="text"
               placeholder="Last Name"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+              className="input-field"
             />
             <input
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+              className="input-field"
             />
 
             <div className="relative w-full mb-3">
               <input
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+                className="password-input"
               />
               <span
                 onClick={() => setShowPassword(!showPassword)}
@@ -109,11 +115,12 @@ function Register() {
 
             <div className="relative w-full mb-6">
               <input
-                value={rePassword}
-                onChange={e => setRePassword(e.target.value)}
+                name="rePassword"
+                value={formData.rePassword}
+                onChange={handleChange}
                 type={showRePassword ? "text" : "password"}
                 placeholder="Re-Password"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+                className="password-input"
               />
               <span
                 onClick={() => setShowRePassword(!showRePassword)}
@@ -125,16 +132,10 @@ function Register() {
           </div>
 
           <div className="mt-6 flex flex-col gap-3 w-full">
-            <button
-              onClick={handleSignUp}
-              className="px-4 py-2 rounded w-full bg-(--kewi-green) text-(--btn-blue-text) shadow-md"
-            >
+            <button onClick={handleSignUp} className="primary-btn">
               Sign Up
             </button>
-            <button
-              onClick={() => navigate("/login")}
-              className="px-4 py-2 rounded w-full"
-            >
+            <button onClick={() => navigate("/login")} className="secondary-btn">
               Already have an account? Sign in
             </button>
           </div>
