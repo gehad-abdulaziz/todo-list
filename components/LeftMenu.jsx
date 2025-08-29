@@ -47,8 +47,8 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
   const [showAllLists, setShowAllLists] = useState(false);
   const [isStickyWallOpen, setIsStickyWallOpen] = useState(false);
   const [isAddListModalOpen, setIsAddListModalOpen] = useState(false);
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
 
-  // Dropdown states
   const [selectedColor, setSelectedColor] = useState(colorOptions[0].value);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -75,11 +75,10 @@ const LeftMenu = ({ todayCount, upcomingCount }) => {
     }
   };
 
-const handleSignOut = () => {
-  localStorage.removeItem("currentUser"); 
-  navigate("/login");
-};
-
+  const handleSignOut = () => {
+    localStorage.removeItem("currentUser");
+    navigate("/login");
+  };
 
   const listsToDisplay = showAllLists ? lists : lists.slice(0, 2);
 
@@ -92,7 +91,6 @@ const handleSignOut = () => {
         <HiMenu className="w-6 h-6 text-(--icon-color)" />
       </button>
 
-      {/* Left Menu */}
       <div
         className={`fixed top-0 left-0 w-72 max-h-screen bg-(--gray-bg) rounded-xl py-3 px-5 my-1 mx-4 mt-3
         transform transition-transform duration-300 z-40
@@ -110,7 +108,6 @@ const handleSignOut = () => {
           <h1 className="text-3xl font-bold text-(--text-color)">Menu</h1>
         </div>
 
-        {/* Search */}
         <div className="flex items-center bg-(--search-bg) rounded-full px-4 py-2">
           <HiSearch className="w-5 h-5 text-(--icon-color)" />
           <input
@@ -120,7 +117,6 @@ const handleSignOut = () => {
           />
         </div>
 
-        {/* Tasks */}
         <div className="mt-8">
           <h2 className="text-lg font-bold mb-3 text-(--text-color)">Tasks</h2>
           <ul className="space-y-4">
@@ -153,7 +149,6 @@ const handleSignOut = () => {
           </ul>
         </div>
 
-        {/* Lists */}
         <div className="mt-8">
           <h2 className="text-lg font-bold mb-3 text-(--text-color)">Lists</h2>
           <ul className="space-y-3">
@@ -191,54 +186,71 @@ const handleSignOut = () => {
           </ul>
         </div>
 
-        {/* Settings & Sign Out */}
         <div className="mt-10 mb-4 space-y-4 text-(--text-color)">
           <div className="flex items-center gap-3 cursor-pointer">
             <AiOutlineAlignCenter className="w-5 h-5 text-(--icon-color)" />
             <span>Settings</span>
           </div>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={handleSignOut}>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setIsSignOutModalOpen(true)}>
             <HiLogout className="w-5 h-5 text-(--icon-color)" />
             <span>Sign Out</span>
           </div>
         </div>
       </div>
 
-      {/* Sticky Wall */}
-      {isStickyWallOpen && (
-        <div
-          className="fixed inset-0 bg-black/10 z-50 flex justify-center items-center"
-          onClick={() => setIsStickyWallOpen(false)}
-        >
-          <div
-            className="bg-(--sticky-bg) p-6 rounded-lg w-full max-w-md shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold mb-4 text-(--text-color)">Sticky Wall</h2>
-            <div className="space-y-2 h-64 overflow-y-auto mb-4">
-              {stickyNotes.map((note, index) => (
-                <div key={index} className="bg-(--sticky-note) p-3 rounded">{note}</div>
-              ))}
-            </div>
-            <form onSubmit={handleAddStickyNote}>
-              <input
-                name="noteText"
-                type="text"
-                placeholder="Add a new note..."
-                className="w-full p-2 rounded border border-(--border-color)"
-              />
-              <button
-                type="submit"
-                className="w-full mt-2 bg-(--accent-yellow) text-(--accent-yellow-text) font-bold py-2 rounded hover:bg-(--accent-yellow-dark) transition-colors"
-              >
-                Add Note
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+{isStickyWallOpen && (
+  <div
+    className="fixed inset-0 bg-black/10 z-50 flex justify-center items-center"
+    onClick={() => setIsStickyWallOpen(false)}
+  >
+    <div
+      className="bg-(--sticky-bg) p-3 rounded-lg w-[280px] max-w-[280px] shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2 className="text-lg font-bold mb-3 text-(--text-color) text-center">Sticky Wall</h2>
 
-      {/* Add List Modal */}
+      {/* Sticky Notes List */}
+      <div className="space-y-2 h-48 overflow-y-auto mb-3">
+        {stickyNotes.map((note, index) => (
+          <div
+            key={index}
+            className="bg-(--sticky-note) p-1.5 rounded break-words flex justify-between items-start min-h-[30px] text-sm"
+          >
+            <span className="break-words">{note}</span>
+            <button
+              onClick={() => {
+                const updatedNotes = stickyNotes.filter((_, i) => i !== index);
+                setStickyNotes(updatedNotes);
+                localStorage.setItem("stickyNotes", JSON.stringify(updatedNotes));
+              }}
+              className="text-red-500 text-xs font-bold ml-2 hover:underline"
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Add New Note Form */}
+      <form onSubmit={handleAddStickyNote}>
+        <input
+          name="noteText"
+          type="text"
+          placeholder="Add a new note..."
+          className="w-full p-1.5 rounded border border-(--border-color) text-sm break-words"
+        />
+        <button
+          type="submit"
+          className="w-full mt-2 bg-(--accent-yellow) text-(--accent-yellow-text) font-bold py-1.5 rounded hover:bg-(--accent-yellow-dark) transition-colors text-sm"
+        >
+          Add Note
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+
+
       {isAddListModalOpen && (
         <div
           className="fixed inset-0 bg-black/10 z-50 flex justify-center items-center"
@@ -254,8 +266,6 @@ const handleSignOut = () => {
                 <label htmlFor="listName" className="block text-(--text-muted) mb-1">List Name</label>
                 <input id="listName" name="listName" type="text" className="w-full p-2 border border-(--border-color) rounded" required />
               </div>
-
-              {/* Custom Dropdown */}
               <div className="mb-6 relative">
                 <label className="block text-(--text-muted) mb-1">List Color</label>
                 <div
@@ -283,9 +293,37 @@ const handleSignOut = () => {
                   </div>
                 )}
               </div>
-
               <button type="submit" className="w-full bg-(--accent-blue) font-bold py-2 rounded hover:bg-(--accent-blue-dark) transition-colors">Add List</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isSignOutModalOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center"
+          onClick={() => setIsSignOutModalOpen(false)}
+        >
+          <div
+            className="bg-(--color-background) p-6 rounded-lg w-full max-w-sm shadow-xl text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-4 text-(--text-color)">Are you sure?</h2>
+            <p className="mb-6 text-(--text-muted)">Do you really want to sign out?</p>
+            <div className="flex justify-around">
+              <button
+                onClick={() => setIsSignOutModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}
