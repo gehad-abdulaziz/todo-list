@@ -9,15 +9,24 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleLogin = () => {
     setError("");
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
-    const user = users.find(u => u.email === email && u.password === password);
+    const user = users.find(
+      (u) => u.email === formData.email && u.password === formData.password
+    );
 
     if (user) {
       localStorage.setItem("currentUser", JSON.stringify(user));
@@ -40,23 +49,26 @@ function Login() {
             Sign in
           </h2>
 
-          {error && <p className="text-red-600 mb-2">{error}</p>}
+          {error && <p className="error-msg">{error}</p>}
 
           <div className="flex flex-col items-start mt-6 w-full max-w-sm mx-auto">
             <input
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+              className="input-field"
             />
+
             <div className="relative w-full">
               <input
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full px-4 py-2 mb-3 border rounded focus:outline-none focus:ring-2 border-(--border-color) focus:ring-(--kewi-green)"
+                className="password-input"
               />
               <span
                 onClick={() => setShowPassword(!showPassword)}
@@ -68,10 +80,7 @@ function Login() {
           </div>
 
           <div className="mt-6 flex flex-col gap-3 w-full max-w-sm mx-auto">
-            <button
-              onClick={handleLogin}
-              className="px-4 py-2 rounded w-full bg-(--kewi-green) text-white shadow-md"
-            >
+            <button onClick={handleLogin} className="primary-btn">
               Sign in
             </button>
 
@@ -92,7 +101,7 @@ function Login() {
 
             <button
               onClick={() => navigate("/Register")}
-              className="px-4 py-2 rounded w-full"
+              className="secondary-btn"
             >
               Don't have an account? Sign up
             </button>
